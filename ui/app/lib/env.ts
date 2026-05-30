@@ -23,9 +23,6 @@ export const env = {
   get SESSION_SECRET() {
     return required("SESSION_SECRET");
   },
-  get APP_PASSWORD_HASH() {
-    return required("APP_PASSWORD_HASH");
-  },
   get OPENROUTER_API_KEY() {
     return required("OPENROUTER_API_KEY");
   },
