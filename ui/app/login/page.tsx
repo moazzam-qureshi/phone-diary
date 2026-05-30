@@ -2,10 +2,14 @@ import { Lock } from "lucide-react";
 import LoginForm from "@/app/components/LoginForm";
 import StatusBar from "@/app/components/StatusBar";
 import Blueprint from "@/app/components/Blueprint";
+import { setupState } from "@/app/lib/users";
 
 export const metadata = { title: "ACCESS — ANALOG LIFE LOG" };
 
-export default function LoginPage() {
+export const dynamic = "force-dynamic";
+
+export default async function LoginPage() {
+  const setup = await setupState();
   return (
     <div className="mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden border-x border-dim/40 bg-background">
       <StatusBar label="LOCKED" />
@@ -25,7 +29,7 @@ export default function LoginPage() {
               reality recording device
             </p>
           </header>
-          <LoginForm />
+          <LoginForm setup={setup} />
         </div>
       </main>
     </div>

@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { AUTHOR_COOKIE, isAuthor, type Author } from "@/app/lib/identity-shared";
+import { SESSION_COOKIE, decrypt } from "@/app/lib/session";
+import { type Author } from "@/app/lib/identity-shared";
 
 // Re-export the client-safe constants so server modules keep a single import
 // point (`@/app/lib/identity`). Client components must import from
@@ -14,14 +15,17 @@ export {
   type Author,
 } from "@/app/lib/identity-shared";
 
-// Current identity for this device. null = not chosen yet (honor system).
+// Current identity = who the signed session says is logged in. Identity is now
+// proven by passcode at login (not a freely-settable cookie), so this is
+// tamper-proof. null = not logged in.
 export async function getViewer(): Promise<Author | null> {
-  const v = (await cookies()).get(AUTHOR_COOKIE)?.value;
-  return isAuthor(v) ? v : null;
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const session = await decrypt(token);
+  return session?.author ?? null;
 }
 
-// For write paths once identity is expected. Throws if unset so a mid-deploy
-// session with no identity cannot create a null-author row.
+// For write paths. Throws if not logged in (route/page guards prevent this in
+// normal flow, but it keeps writes from ever producing a null-author row).
 export async function requireViewer(): Promise<Author> {
   const v = await getViewer();
   if (!v) throw new Error("NO_IDENTITY");
