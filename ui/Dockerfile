@@ -5,12 +5,16 @@
 # === Deps ===
 FROM node:22-alpine AS deps
 WORKDIR /app
+# npm install (not ci) so the build tolerates lockfile/npm-version drift and
+# always installs devDependencies needed for `next build`, drizzle-kit, tsx.
+ENV NODE_ENV=development
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --no-audit --no-fund
 
 # === Builder ===
 FROM node:22-alpine AS builder
 WORKDIR /app
+ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
