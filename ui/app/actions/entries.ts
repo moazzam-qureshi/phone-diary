@@ -8,10 +8,14 @@ import { entries } from "@/app/lib/db/schema";
 import { verifySession } from "@/app/lib/dal";
 import { ENTRY_TYPES, CATEGORIES } from "@/app/lib/types";
 import { classifyEntry } from "@/app/lib/classifier";
+import { requireViewer } from "@/app/lib/identity";
 
 // --- Capture: pure text dump. Type/category are assigned LATER by the AI. ---
 
-const CreateSchema = z.object({ text: z.string().trim().min(1) });
+const CreateSchema = z.object({
+  text: z.string().trim().min(1),
+  isSecret: z.boolean().optional(),
+});
 
 export type CreateEntryResult =
   | { ok: true; id: string }
@@ -19,17 +23,29 @@ export type CreateEntryResult =
 
 export async function createEntry(input: {
   text: string;
+  isSecret?: boolean;
 }): Promise<CreateEntryResult> {
   await verifySession();
 
-  const parsed = CreateSchema.safeParse({ text: input.text });
+  let viewer;
+  try {
+    viewer = await requireViewer();
+  } catch {
+    return { ok: false, error: "SET IDENTITY FIRST" };
+  }
+
+  const parsed = CreateSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "EMPTY ENTRY" };
   }
 
   const [row] = await db
     .insert(entries)
-    .values({ text: parsed.data.text })
+    .values({
+      text: parsed.data.text,
+      author: viewer,
+      isSecret: parsed.data.isSecret ?? false,
+    })
     .returning({ id: entries.id });
 
   // Auto-classify on capture. If the AI call fails, the entry still persists
@@ -123,6 +139,79 @@ export async function setEntryType(input: {
       classifiedAt: new Date(),
     })
     .where(eq(entries.id, parsed.data.id));
+
+  revalidatePath("/timeline");
+  return { ok: true };
+}
+
+// --- Secret toggle (couple's mode). Only your OWN entries are lockable. ---
+
+const SecretSchema = z.object({
+  id: z.string().uuid(),
+  isSecret: z.boolean(),
+});
+
+export async function setSecret(input: {
+  id: string;
+  isSecret: boolean;
+}): Promise<{ ok: boolean }> {
+  await verifySession();
+  let viewer;
+  try {
+    viewer = await requireViewer();
+  } catch {
+    return { ok: false };
+  }
+  const parsed = SecretSchema.safeParse(input);
+  if (!parsed.success) return { ok: false };
+
+  const [entry] = await db
+    .select({ author: entries.author })
+    .from(entries)
+    .where(eq(entries.id, parsed.data.id))
+    .limit(1);
+  // Only your OWN entries are lockable; legacy (null author) never lockable.
+  if (!entry || entry.author !== viewer) return { ok: false };
+
+  await db
+    .update(entries)
+    .set({
+      isSecret: parsed.data.isSecret,
+      // un-secreting clears gift state (it's now fully public)
+      ...(parsed.data.isSecret ? {} : { giftedAt: null }),
+    })
+    .where(eq(entries.id, parsed.data.id));
+
+  revalidatePath("/timeline");
+  return { ok: true };
+}
+
+// --- Gift a secret to the partner (permanent reveal). Own + secret only. ---
+
+export async function giftEntry(input: {
+  id: string;
+}): Promise<{ ok: boolean }> {
+  await verifySession();
+  let viewer;
+  try {
+    viewer = await requireViewer();
+  } catch {
+    return { ok: false };
+  }
+  if (!z.string().uuid().safeParse(input.id).success) return { ok: false };
+
+  const [entry] = await db
+    .select({ author: entries.author, isSecret: entries.isSecret })
+    .from(entries)
+    .where(eq(entries.id, input.id))
+    .limit(1);
+  // Can only gift your OWN entry, and only if it is currently a secret.
+  if (!entry || entry.author !== viewer || !entry.isSecret) return { ok: false };
+
+  await db
+    .update(entries)
+    .set({ giftedAt: new Date() })
+    .where(eq(entries.id, input.id));
 
   revalidatePath("/timeline");
   return { ok: true };
