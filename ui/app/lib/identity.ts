@@ -1,26 +1,18 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { AUTHOR_COOKIE, isAuthor, type Author } from "@/app/lib/identity-shared";
 
-// Stable internal author values. Display names are separate constants below,
-// so renaming a person is a one-line edit and never needs a DB migration.
-export const AUTHORS = ["author_a", "author_b"] as const;
-export type Author = (typeof AUTHORS)[number];
-
-// App content, intentionally NOT env vars (these never differ per deployment).
-export const DISPLAY_NAMES: Record<Author, string> = {
-  author_a: "Moazzam",
-  author_b: "Nuha",
-};
-
-export const AUTHOR_COOKIE = "als_author";
-
-export function isAuthor(v: string | undefined | null): v is Author {
-  return v === "author_a" || v === "author_b";
-}
-
-export function partnerOf(a: Author): Author {
-  return a === "author_a" ? "author_b" : "author_a";
-}
+// Re-export the client-safe constants so server modules keep a single import
+// point (`@/app/lib/identity`). Client components must import from
+// `@/app/lib/identity-shared` instead (this module is server-only).
+export {
+  AUTHORS,
+  DISPLAY_NAMES,
+  AUTHOR_COOKIE,
+  isAuthor,
+  partnerOf,
+  type Author,
+} from "@/app/lib/identity-shared";
 
 // Current identity for this device. null = not chosen yet (honor system).
 export async function getViewer(): Promise<Author | null> {
