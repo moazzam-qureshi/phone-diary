@@ -9,7 +9,6 @@ import { type Author } from "@/app/lib/identity-shared";
 export {
   AUTHORS,
   DISPLAY_NAMES,
-  AUTHOR_COOKIE,
   isAuthor,
   partnerOf,
   type Author,
