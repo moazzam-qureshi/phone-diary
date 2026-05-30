@@ -1,0 +1,54 @@
+# Production compose — deployed on Coolify.
+#
+# Coolify handles domain routing + SSL (point the public domain at web:3000)
+# and persists the named volume across redeploys.
+# Environment variables come from .env (see .env.example).
+
+services:
+  # === Frontend + API (single Next.js app) ===
+  web:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      target: runtime
+    environment:
+      NODE_ENV: production
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # === Persistence ===
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: als
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: als
+    volumes:
+      - als_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U als"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # === Migrations (runs once per deploy, then exits) ===
+  migrate:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      target: migrator
+    env_file: .env
+    command: ["npm", "run", "db:migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  als_pg_data:

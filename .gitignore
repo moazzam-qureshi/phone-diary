@@ -1,0 +1,8 @@
+# Secrets — never commit. Only .env.example is tracked.
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+*.log

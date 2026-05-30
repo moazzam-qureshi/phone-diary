@@ -1,0 +1,25 @@
+# Local-dev compose: spins up Postgres ONLY.
+# The Next.js app runs locally via `cd ui && npm run dev` so reloads are instant.
+# Port 5432 is published so the host can connect (drizzle-kit, psql, migrations).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: als
+      # Must match the running volume + root .env so dev and Docker share creds.
+      POSTGRES_PASSWORD: als-local-db-pw
+      POSTGRES_DB: als
+    ports:
+      - "5432:5432"
+    volumes:
+      - als_pg_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U als -d als"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  als_pg_data_dev:

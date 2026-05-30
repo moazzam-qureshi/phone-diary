@@ -1,0 +1,15 @@
+# Local-only override. Docker Compose auto-merges this with docker-compose.yml
+# when you run `docker compose up` locally. Coolify uses docker-compose.yml
+# ONLY (it does not read override files), so this stays out of production.
+#
+# Purpose: publish the web port so you can reach the app at http://localhost:3000
+# during local runs. In production Coolify routes the domain to web:3000 itself.
+
+services:
+  web:
+    ports:
+      - "3000:3000"
+  # Publish Postgres locally too (handy for psql / drizzle-kit from the host).
+  postgres:
+    ports:
+      - "5432:5432"

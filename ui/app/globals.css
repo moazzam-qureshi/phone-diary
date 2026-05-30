@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+/* Steins;Gate flip-phone menu — deep blue blueprint with glossy orbs. */
+:root {
+  --background: #04102a; /* deep navy */
+  --background-2: #0a1f4a; /* lifted blue */
+  --foreground: #cfe6ff; /* pale blue-white text */
+  --accent: #4ea3ff; /* bright cyan-blue highlight */
+  --dim: #2a4a7a; /* muted blue for borders */
+  --panel: #081830; /* panel fill */
+  --line: #1b3a6b; /* blueprint line color */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-2: var(--background-2);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-dim: var(--dim);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --font-sans: var(--font-geist-mono);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  text-shadow: 0 0 3px rgba(78, 163, 255, 0.25);
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--accent);
+  color: #00132e;
+}
+
+/* hide OS scrollbar — keitai chrome owns scrolling */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Glossy 3D orb icon (Steins;Gate menu style) --- */
+.orb {
+  position: relative;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 50% 32%,
+    #16335f 0%,
+    #0a1830 46%,
+    #050d1e 75%,
+    #02060f 100%
+  );
+  box-shadow:
+    inset 0 1px 2px rgba(120, 180, 255, 0.5),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.7),
+    0 4px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(78, 163, 255, 0.35);
+}
+/* top glossy reflection */
+.orb::before {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 8%;
+  height: 34%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0)
+  );
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+.orb-active {
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 1px 2px rgba(160, 210, 255, 0.7),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.6),
+    0 0 14px rgba(78, 163, 255, 0.7);
+}
+.orb-glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eaf4ff;
+  text-shadow: 0 0 6px rgba(120, 180, 255, 0.8);
+}
+
+/* --- Scanline + flicker overlay --- */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.18) 3px,
+    rgba(0, 0, 0, 0.18) 4px
+  );
+  mix-blend-mode: multiply;
+}
+.crt-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 62%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+.flicker {
+  position: fixed;
+  inset: 0;
+  z-index: 51;
+  pointer-events: none;
+  background: rgba(78, 163, 255, 0.012);
+  animation: flicker 5s infinite steps(60);
+}
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.98;
+  }
+  30% {
+    opacity: 0.95;
+  }
+  60% {
+    opacity: 0.99;
+  }
+  80% {
+    opacity: 0.96;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flicker {
+    animation: none;
+  }
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.blink {
+  animation: blink 1s steps(1) infinite;
+}
