@@ -34,14 +34,6 @@ export default function CaptureScreen() {
     });
   }
 
-  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    // Enter submits; Shift+Enter inserts a newline.
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      submit();
-    }
-  }
-
   return (
     <Screen
       title="LOG"
@@ -62,7 +54,6 @@ export default function CaptureScreen() {
             setText(e.target.value);
             if (flash) setFlash(null);
           }}
-          onKeyDown={onKeyDown}
           placeholder="record reality…"
           className="w-full min-h-0 flex-1 resize-none border border-dim bg-panel p-3 font-mono text-base leading-relaxed text-foreground outline-none placeholder:text-dim focus:border-accent"
         />
