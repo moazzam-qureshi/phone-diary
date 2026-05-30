@@ -3,7 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Entry } from "@/app/lib/db/schema";
-import { setEntryType, deleteEntry } from "@/app/actions/entries";
+import {
+  setEntryType,
+  deleteEntry,
+  setSecret as setSecretAction,
+  giftEntry,
+} from "@/app/actions/entries";
 import {
   ENTRY_TYPES,
   CATEGORIES,
@@ -38,7 +43,13 @@ function latency(ms: number) {
   return `${Math.round(hrs / 24)}d`;
 }
 
-export default function EntryCard({ entry }: { entry: Entry }) {
+export default function EntryCard({
+  entry,
+  owner = false,
+}: {
+  entry: Entry;
+  owner?: boolean;
+}) {
   const [editing, setEditing] = useState(false);
   const [picking, setPicking] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -58,6 +69,20 @@ export default function EntryCard({ entry }: { entry: Entry }) {
   function remove() {
     startTransition(async () => {
       await deleteEntry(entry.id);
+      router.refresh();
+    });
+  }
+
+  function toggleSecret() {
+    startTransition(async () => {
+      await setSecretAction({ id: entry.id, isSecret: !entry.isSecret });
+      router.refresh();
+    });
+  }
+
+  function gift() {
+    startTransition(async () => {
+      await giftEntry({ id: entry.id });
       router.refresh();
     });
   }
@@ -191,6 +216,32 @@ export default function EntryCard({ entry }: { entry: Entry }) {
           >
             {hasOutcome ? "edit outcome" : "+ outcome"}
           </button>
+
+          {owner && (
+            <span className="flex items-center gap-2 text-[0.6rem] uppercase tracking-widest">
+              <button
+                type="button"
+                disabled={pending}
+                onClick={toggleSecret}
+                className="min-h-[36px] px-2 text-accent/60 active:text-accent disabled:opacity-40"
+              >
+                {entry.isSecret ? "🔒 secret" : "🔓 make secret"}
+              </button>
+              {entry.isSecret && entry.giftedAt == null && (
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={gift}
+                  className="min-h-[36px] border border-accent/60 px-2 text-accent active:bg-accent active:text-black disabled:opacity-40"
+                >
+                  🎁 offer as gift
+                </button>
+              )}
+              {entry.isSecret && entry.giftedAt != null && (
+                <span className="text-accent/50">🎁 gifted</span>
+              )}
+            </span>
+          )}
           {confirmDelete ? (
             <span className="flex items-center gap-2 text-[0.65rem]">
               <button

@@ -124,6 +124,34 @@ export function playClick() {
   }
 }
 
+// Warm two-note "reveal" chime for opening a gift. Distinct from the dry
+// keypad/click sounds: a soft rising sine pair with a gentle decay.
+export function playGiftOpen() {
+  if (isMuted()) return;
+  const ac = ctx();
+  if (!ac) return;
+  try {
+    const now = ac.currentTime;
+    const notes = [523.25, 783.99]; // C5 -> G5, a friendly rising fifth
+    notes.forEach((freq, i) => {
+      const t = now + i * 0.12;
+      const osc = ac.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, t);
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.18, t + 0.02);
+      g.gain.linearRampToValueAtTime(0.0, t + 0.35);
+      osc.connect(g);
+      g.connect(ac.destination);
+      osc.start(t);
+      osc.stop(t + 0.4);
+    });
+  } catch {
+    // never let a failed chime break interaction
+  }
+}
+
 // Simple pub/sub so MuteToggle instances stay in sync.
 const listeners = new Set<(muted: boolean) => void>();
 function setMuted(muted: boolean) {
@@ -150,7 +178,8 @@ export function useAudio() {
 
   const keystroke = useCallback(() => playKeystroke(), []);
   const click = useCallback(() => playClick(), []);
+  const giftOpen = useCallback(() => playGiftOpen(), []);
   const toggleMute = useCallback(() => setMuted(!isMuted()), []);
 
-  return { muted, keystroke, click, toggleMute };
+  return { muted, keystroke, click, giftOpen, toggleMute };
 }
