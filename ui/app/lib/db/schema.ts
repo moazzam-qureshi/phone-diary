@@ -28,6 +28,10 @@ export const entryCategory = pgEnum("entry_category", [
   "Life",
 ]);
 
+// Couple's mode: who wrote the entry. Stable values; display names live in
+// app/lib/identity.ts. Nullable — legacy (pre-feature) entries have no author.
+export const author = pgEnum("author", ["author_a", "author_b"]);
+
 export const entries = pgTable(
   "entries",
   {
@@ -65,12 +69,20 @@ export const entries = pgTable(
     decisionLatencyMs: bigint("decision_latency_ms", { mode: "number" }),
 
     metadata: jsonb("metadata").$type<EntryMetadata>().default({}),
+
+    // Couple's mode (see docs spec 2026-05-30). author null = legacy entry.
+    author: author("author"),
+    // is_secret: partner sees a locked placeholder, not the text.
+    isSecret: boolean("is_secret").notNull().default(false),
+    // gifted_at: non-null = author revealed this secret to the partner.
+    giftedAt: timestamp("gifted_at", { withTimezone: true }),
   },
   (table) => [
     index("entries_created_at_idx").on(table.createdAt),
     index("entries_type_idx").on(table.type),
     index("entries_category_idx").on(table.category),
     index("entries_executes_entry_id_idx").on(table.executesEntryId),
+    index("entries_author_idx").on(table.author),
   ],
 );
 
