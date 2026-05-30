@@ -5,20 +5,23 @@
 # === Deps ===
 FROM node:22-alpine AS deps
 WORKDIR /app
-# npm install (not ci) so the build tolerates lockfile/npm-version drift and
-# always installs devDependencies needed for `next build`, drizzle-kit, tsx.
-ENV NODE_ENV=development
+# Coolify injects `ARG NODE_ENV` (often =production) into every stage, which
+# makes npm skip devDependencies. We MUST install devDeps (next, tailwind,
+# typescript, drizzle-kit, tsx are all needed to build). Force it explicitly
+# and ignore the injected NODE_ENV. npm install (not ci) tolerates lockfile drift.
+ARG NODE_ENV
 COPY package.json package-lock.json ./
-RUN npm install --no-audit --no-fund
+RUN NODE_ENV=development npm install --include=dev --no-audit --no-fund
 
 # === Builder ===
 FROM node:22-alpine AS builder
 WORKDIR /app
-ENV NODE_ENV=development
+ARG NODE_ENV
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+# Build with NODE_ENV=production output but devDeps already present.
+RUN NODE_ENV=production npm run build
 
 # === Migrator ===
 # Retains full deps + the drizzle/ SQL + migrate.ts so the one-shot migrate
