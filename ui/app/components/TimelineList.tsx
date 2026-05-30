@@ -4,7 +4,14 @@ import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ENTRY_TYPES, CATEGORIES } from "@/app/lib/types";
 import type { VisibleEntry } from "@/app/lib/visibility";
-import type { Author } from "@/app/lib/identity-shared";
+import { AUTHORS, DISPLAY_NAMES, type Author } from "@/app/lib/identity-shared";
+
+// Quick date ranges shown in the filter panel (value -> label).
+const RANGE_OPTIONS = [
+  ["today", "TODAY"],
+  ["7d", "7 DAYS"],
+  ["30d", "30 DAYS"],
+] as const;
 import { classifyUntagged } from "@/app/actions/entries";
 import Screen from "./Screen";
 import EntryCard from "./EntryCard";
@@ -27,13 +34,16 @@ export default function TimelineList({
   const [showFilter, setShowFilter] = useState(false);
   const activeType = params.get("type");
   const activeCategory = params.get("category");
+  const activeAuthor = params.get("author");
+  const activeRange = params.get("range");
   const untagged = entries.filter(
     (v) => v.kind === "full" && !v.entry.type,
   ).length;
   const giftIds = entries
     .filter((v) => v.kind === "full" && v.gift)
     .map((v) => (v as Extract<VisibleEntry, { kind: "full" }>).entry.id);
-  const filtered = !!activeType || !!activeCategory;
+  const filtered =
+    !!activeType || !!activeCategory || !!activeAuthor || !!activeRange;
 
   function setParam(key: string, value: string | null) {
     const next = new URLSearchParams(params.toString());
@@ -97,6 +107,34 @@ export default function TimelineList({
         {showFilter && (
           <div className="flex flex-col gap-2 border border-dim bg-panel p-2.5">
             <p className="text-[0.6rem] uppercase tracking-widest text-accent/60">
+              who
+            </p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {row("ALL", !activeAuthor, () => setParam("author", null), "all-a")}
+              {AUTHORS.map((a) =>
+                row(
+                  DISPLAY_NAMES[a],
+                  activeAuthor === a,
+                  () => setParam("author", a),
+                  `a-${a}`,
+                ),
+              )}
+            </div>
+            <p className="mt-1 text-[0.6rem] uppercase tracking-widest text-accent/60">
+              when
+            </p>
+            <div className="grid grid-cols-4 gap-1.5">
+              {row("ALL", !activeRange, () => setParam("range", null), "all-r")}
+              {RANGE_OPTIONS.map(([v, label]) =>
+                row(
+                  label,
+                  activeRange === v,
+                  () => setParam("range", v),
+                  `r-${v}`,
+                ),
+              )}
+            </div>
+            <p className="mt-1 text-[0.6rem] uppercase tracking-widest text-accent/60">
               type
             </p>
             <div className="grid grid-cols-3 gap-1.5">

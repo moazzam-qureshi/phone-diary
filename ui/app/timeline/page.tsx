@@ -4,6 +4,8 @@ import {
   listEntries,
   parseCategoryFilter,
   parseTypeFilter,
+  parseAuthorFilter,
+  parseRangeFilter,
 } from "@/app/lib/entries";
 import { getViewer } from "@/app/lib/identity";
 import TimelineList from "@/app/components/TimelineList";
@@ -14,7 +16,12 @@ export const dynamic = "force-dynamic";
 export default async function TimelinePage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; category?: string }>;
+  searchParams: Promise<{
+    type?: string;
+    category?: string;
+    author?: string;
+    range?: string;
+  }>;
 }) {
   await verifySession();
   const viewer = await getViewer();
@@ -22,7 +29,9 @@ export default async function TimelinePage({
   const sp = await searchParams;
   const type = parseTypeFilter(sp.type);
   const category = parseCategoryFilter(sp.category);
-  const entries = await listEntries(viewer, { type, category });
+  const author = parseAuthorFilter(sp.author);
+  const range = parseRangeFilter(sp.range);
+  const entries = await listEntries(viewer, { type, category, author, range });
 
   // TimelineList renders its own keitai Screen (status bar + soft keys).
   return <TimelineList entries={entries} viewer={viewer} />;
