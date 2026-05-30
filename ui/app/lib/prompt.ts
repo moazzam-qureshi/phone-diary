@@ -1,4 +1,13 @@
 import "server-only";
+import { DISPLAY_NAMES, type Author } from "@/app/lib/identity";
+
+// Appended to SYSTEM_PROMPT so the model uses people's names and knows scope.
+export function targetClause(target: Author | "both"): string {
+  if (target === "both") {
+    return `\n\nThis log belongs to two people: ${DISPLAY_NAMES.author_a} and ${DISPLAY_NAMES.author_b}. Refer to them by name when relevant.`;
+  }
+  return `\n\nFocus this answer on ${DISPLAY_NAMES[target]}. Refer to them by name.`;
+}
 
 // System prompt for the AI query layer. The assistant is a retrospective
 // analyst over the owner's own logs — terse, terminal-toned, evidence-bound.

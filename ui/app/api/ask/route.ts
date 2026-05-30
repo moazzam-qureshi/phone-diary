@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/app/lib/dal";
+import { getViewer } from "@/app/lib/identity";
 import { buildContext, serializeEntries } from "@/app/lib/retrieval";
-import { SYSTEM_PROMPT, buildUserMessage } from "@/app/lib/prompt";
+import { SYSTEM_PROMPT, buildUserMessage, targetClause } from "@/app/lib/prompt";
 import { streamChat, sseToTextStream } from "@/app/lib/openrouter";
 
 // Uses `pg` (Node APIs) and streams — must run on the Node.js runtime and be dynamic.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const BodySchema = z.object({ query: z.string().trim().min(1) });
+const BodySchema = z.object({
+  query: z.string().trim().min(1),
+  target: z.enum(["author_a", "author_b", "both"]).optional(),
+});
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -28,11 +32,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "query required" }, { status: 400 });
   }
 
-  const { entries } = await buildContext(parsed.data.query);
+  const viewer = await getViewer();
+  if (!viewer) {
+    return NextResponse.json({ error: "no identity" }, { status: 409 });
+  }
+  const target = parsed.data.target ?? "both";
+
+  const { entries } = await buildContext(parsed.data.query, { viewer, target });
   const serialized = serializeEntries(entries);
 
   const upstream = await streamChat([
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: SYSTEM_PROMPT + targetClause(target) },
     { role: "user", content: buildUserMessage(parsed.data.query, serialized) },
   ]);
 

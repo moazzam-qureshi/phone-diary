@@ -5,11 +5,18 @@ import { useRouter } from "next/navigation";
 import { analyzeLatency } from "@/app/actions/latency";
 import Screen from "./Screen";
 
+// Client-safe display names. identity.ts is server-only, so we can't import it
+// here; this small map mirrors DISPLAY_NAMES for the target selector.
+const NAMES = { author_a: "Moazzam", author_b: "Nuha", both: "Both" } as const;
+
 export default function AskPanel() {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [target, setTarget] = useState<"author_a" | "author_b" | "both">(
+    "both",
+  );
   const [analyzing, startAnalyze] = useTransition();
   const router = useRouter();
 
@@ -22,10 +29,16 @@ export default function AskPanel() {
       const res = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, target }),
       });
       if (!res.ok || !res.body) {
-        setStatus(res.status === 401 ? "SESSION EXPIRED" : "QUERY FAILED");
+        setStatus(
+          res.status === 401
+            ? "SESSION EXPIRED"
+            : res.status === 409
+              ? "SET IDENTITY FIRST"
+              : "QUERY FAILED",
+        );
         setStreaming(false);
         return;
       }
@@ -82,6 +95,24 @@ export default function AskPanel() {
           >
             {analyzing ? "…" : "⏱ latency"}
           </button>
+        </div>
+
+        <div className="flex gap-1.5">
+          {(["author_a", "author_b", "both"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTarget(t)}
+              aria-pressed={target === t}
+              className={`min-h-[32px] flex-1 border px-2 text-[0.6rem] uppercase tracking-widest ${
+                target === t
+                  ? "border-accent bg-accent text-black"
+                  : "border-dim text-accent/60"
+              }`}
+            >
+              {NAMES[t]}
+            </button>
+          ))}
         </div>
 
         <textarea

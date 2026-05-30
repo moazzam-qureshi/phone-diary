@@ -1,5 +1,15 @@
 import "server-only";
-import { and, desc, gte, ilike, or, eq, type SQL } from "drizzle-orm";
+import {
+  and,
+  desc,
+  gte,
+  ilike,
+  or,
+  eq,
+  isNotNull,
+  type SQL,
+} from "drizzle-orm";
+import type { Author } from "@/app/lib/identity-shared";
 import { db } from "@/app/lib/db/client";
 import { entries, type Entry } from "@/app/lib/db/schema";
 import {
@@ -61,8 +71,15 @@ export type RetrievedContext = {
   };
 };
 
+export type AskTarget = Author | "both";
+
 // Heuristic context builder for the AI query layer (PRD 4.5, no vector DB).
-export async function buildContext(query: string): Promise<RetrievedContext> {
+// `viewer`/`target` add couple's-mode scoping: the model only ever sees entries
+// the viewer is allowed to see, optionally narrowed to one person.
+export async function buildContext(
+  query: string,
+  opts: { viewer: Author; target: AskTarget },
+): Promise<RetrievedContext> {
   const since = detectSince(query);
   const type = detectType(query);
   const category = detectCategory(query);
@@ -72,6 +89,22 @@ export async function buildContext(query: string): Promise<RetrievedContext> {
   if (since) conds.push(gte(entries.createdAt, since));
   if (type) conds.push(eq(entries.type, type));
   if (category) conds.push(eq(entries.category, category));
+
+  // TARGET filter: a specific person -> only their entries. "both" -> no author
+  // constraint (legacy null-author entries are included only in "both").
+  if (opts.target !== "both") {
+    conds.push(eq(entries.author, opts.target));
+  }
+
+  // SECRET filter (ALWAYS): the model may only see an entry that is not a
+  // locked partner-secret from the viewer's perspective:
+  //   is_secret = false  OR  author = viewer  OR  gifted_at IS NOT NULL
+  const secretOk = or(
+    eq(entries.isSecret, false),
+    eq(entries.author, opts.viewer),
+    isNotNull(entries.giftedAt),
+  );
+  if (secretOk) conds.push(secretOk);
 
   // Soft keyword OR over text + outcome (only narrows if structured filters
   // didn't already; if none of the words appear we still fall back below).
@@ -98,6 +131,16 @@ export async function buildContext(query: string): Promise<RetrievedContext> {
     if (since) structural.push(gte(entries.createdAt, since));
     if (type) structural.push(eq(entries.type, type));
     if (category) structural.push(eq(entries.category, category));
+    if (opts.target !== "both") {
+      structural.push(eq(entries.author, opts.target));
+    }
+    // Same secret filter as above — never relax visibility in the fallback.
+    const s2 = or(
+      eq(entries.isSecret, false),
+      eq(entries.author, opts.viewer),
+      isNotNull(entries.giftedAt),
+    );
+    if (s2) structural.push(s2);
     rows = await db
       .select()
       .from(entries)
