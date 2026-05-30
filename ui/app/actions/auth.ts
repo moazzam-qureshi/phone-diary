@@ -2,7 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { cookies } from "next/headers";
 import { createSession, deleteSession, verifyPassword } from "@/app/lib/session";
+import { AUTHOR_COOKIE } from "@/app/lib/identity";
 
 const LoginSchema = z.object({
   password: z.string().min(1, "ENTER ACCESS KEY"),
@@ -33,5 +35,7 @@ export async function login(
 
 export async function logout(): Promise<void> {
   await deleteSession();
+  // Also clear identity so logging out is a clean reset on this device.
+  (await cookies()).delete(AUTHOR_COOKIE);
   redirect("/login");
 }

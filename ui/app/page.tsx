@@ -3,6 +3,7 @@ import { getViewer } from "@/app/lib/identity";
 import HomeMenu from "@/app/components/HomeMenu";
 import IdentityGate from "@/app/components/IdentityGate";
 import SwitchIdentity from "@/app/components/SwitchIdentity";
+import LogoutButton from "@/app/components/LogoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export default async function Home() {
   if (!viewer) return <IdentityGate />;
   return (
     <div className="relative h-full">
+      <LogoutButton />
       <SwitchIdentity viewer={viewer} />
       <HomeMenu />
     </div>
