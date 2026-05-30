@@ -13,8 +13,6 @@ export const DISPLAY_NAMES: Record<Author, string> = {
   author_b: "Nuha",
 };
 
-export const AUTHOR_COOKIE = "als_author";
-
 export function isAuthor(v: string | undefined | null): v is Author {
   return v === "author_a" || v === "author_b";
 }
