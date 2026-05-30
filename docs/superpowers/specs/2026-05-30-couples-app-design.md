@@ -1,7 +1,36 @@
 # Design — Couple's Mode (two authors, secrets, gifts)
 
 **Date:** 2026-05-30
-**Status:** Approved (brainstorming) — ready for implementation plan
+**Status:** Implemented. **Auth model revised post-implementation** — see the
+"AUTH REVISION" note below; the honor-system identity cookie was replaced by
+per-person passcodes because a single shared password let either person pick the
+other's identity and read their secrets.
+
+---
+
+## ⚠️ AUTH REVISION (supersedes Sections 2 identity decisions)
+
+The original design kept the single shared password and made identity an
+honor-system `als_author` cookie ("we each have our own phone"). In practice the
+shared password meant anyone could log in on any device, pick the other person,
+and read their secrets — defeating the secret feature. **Revised model:**
+
+- **Per-person passcodes** stored in a new `users` table (`author` PK,
+  `passcode_hash`). The passcode both authenticates AND proves identity.
+- **Login** = enter your passcode → the matching `users` row identifies you →
+  `author` is embedded in the **signed session JWT** (`{ sub:"owner", author }`),
+  so identity is tamper-proof.
+- **First-run setup:** each person claims their slot ("I am Moazzam/Nuha" → set a
+  passcode). If only one slot is claimed, that person can log in and a
+  "set up <other>" affordance lets the partner claim theirs later.
+- **Removed:** `als_author` cookie, `IdentityGate`, `SwitchIdentity`,
+  `setViewer`, and the single `APP_PASSWORD_HASH` login path. `getViewer()` now
+  reads the author from the session, not a cookie. There is no identity switch —
+  you log out and log in as the other person (needs their passcode).
+- This is what makes the secret/gift feature actually private.
+
+Everything else below (secrets, gifts, AI scoping, visibility rule) is unchanged
+and still accurate.
 
 ## Goal
 
