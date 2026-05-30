@@ -3,8 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Required for the Docker runtime stage: emits .next/standalone/server.js
   output: "standalone",
-  // tsc + eslint run separately; don't let them block the production build.
-  eslint: { ignoreDuringBuilds: true },
+  // tsc runs separately; don't let type errors block the production build.
   typescript: { ignoreBuildErrors: true },
 };
 
