@@ -6,6 +6,9 @@ import {
 } from "@/app/lib/entries";
 import TimelineList from "@/app/components/TimelineList";
 
+// Per-request: reads cookies (auth) + DB + URL searchParams. Never prerender.
+export const dynamic = "force-dynamic";
+
 export default async function TimelinePage({
   searchParams,
 }: {
