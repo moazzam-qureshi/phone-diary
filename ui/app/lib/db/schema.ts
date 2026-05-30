@@ -32,6 +32,19 @@ export const entryCategory = pgEnum("entry_category", [
 // app/lib/identity.ts. Nullable — legacy (pre-feature) entries have no author.
 export const author = pgEnum("author", ["author_a", "author_b"]);
 
+// Per-person credentials. One row per author; passcodeHash null = slot not yet
+// claimed (first-run setup). The passcode both authenticates AND proves
+// identity, so secrets are real (you can't become the other without theirs).
+export const users = pgTable("users", {
+  author: author("author").primaryKey(),
+  passcodeHash: text("passcode_hash"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type User = typeof users.$inferSelect;
+
 export const entries = pgTable(
   "entries",
   {

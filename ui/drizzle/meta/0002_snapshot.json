@@ -1,0 +1,302 @@
+{
+  "id": "50d9a00a-a97d-4a73-9263-480751067ba5",
+  "prevId": "afad6ea8-b519-4478-9125-004b1be9c08a",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.entries": {
+      "name": "entries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "type": {
+          "name": "type",
+          "type": "entry_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category": {
+          "name": "category",
+          "type": "entry_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "classified_at": {
+          "name": "classified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type_confidence_pct": {
+          "name": "type_confidence_pct",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type_locked": {
+          "name": "type_locked",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "outcome": {
+          "name": "outcome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "outcome_success": {
+          "name": "outcome_success",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "outcome_notes": {
+          "name": "outcome_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "outcome_at": {
+          "name": "outcome_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "executes_entry_id": {
+          "name": "executes_entry_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "decision_latency_ms": {
+          "name": "decision_latency_ms",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'::jsonb"
+        },
+        "author": {
+          "name": "author",
+          "type": "author",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_secret": {
+          "name": "is_secret",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "gifted_at": {
+          "name": "gifted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "entries_created_at_idx": {
+          "name": "entries_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "entries_type_idx": {
+          "name": "entries_type_idx",
+          "columns": [
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "entries_category_idx": {
+          "name": "entries_category_idx",
+          "columns": [
+            {
+              "expression": "category",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "entries_executes_entry_id_idx": {
+          "name": "entries_executes_entry_id_idx",
+          "columns": [
+            {
+              "expression": "executes_entry_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "entries_author_idx": {
+          "name": "entries_author_idx",
+          "columns": [
+            {
+              "expression": "author",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "entries_executes_entry_id_entries_id_fk": {
+          "name": "entries_executes_entry_id_entries_id_fk",
+          "tableFrom": "entries",
+          "tableTo": "entries",
+          "columnsFrom": [
+            "executes_entry_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "author": {
+          "name": "author",
+          "type": "author",
+          "typeSchema": "public",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "passcode_hash": {
+          "name": "passcode_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.author": {
+      "name": "author",
+      "schema": "public",
+      "values": [
+        "author_a",
+        "author_b"
+      ]
+    },
+    "public.entry_category": {
+      "name": "entry_category",
+      "schema": "public",
+      "values": [
+        "Business",
+        "Health",
+        "Mind",
+        "Execution",
+        "Life"
+      ]
+    },
+    "public.entry_type": {
+      "name": "entry_type",
+      "schema": "public",
+      "values": [
+        "TURN",
+        "PULSE",
+        "MIRROR",
+        "FORGE",
+        "TRACE"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
