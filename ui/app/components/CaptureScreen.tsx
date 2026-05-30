@@ -10,6 +10,7 @@ import Screen from "./Screen";
 // keitai-style. BACK returns to the home menu.
 export default function CaptureScreen() {
   const [text, setText] = useState("");
+  const [secret, setSecret] = useState(false);
   const [pending, startTransition] = useTransition();
   const [flash, setFlash] = useState<string | null>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -22,10 +23,11 @@ export default function CaptureScreen() {
       return;
     }
     startTransition(async () => {
-      const res = await createEntry({ text });
+      const res = await createEntry({ text, isSecret: secret });
       if (res.ok) {
         setText("");
-        setFlash("RECORDED · CLASSIFIED");
+        setSecret(false);
+        setFlash(secret ? "RECORDED · SECRET" : "RECORDED · CLASSIFIED");
         textRef.current?.focus();
         router.refresh();
       } else {
@@ -41,9 +43,23 @@ export default function CaptureScreen() {
       action={{ label: pending ? "…" : "LOG", onClick: submit }}
     >
       <section className="flex h-full min-h-0 flex-col gap-2 p-3">
-        <div className="flex items-center gap-2 text-[0.7rem] uppercase tracking-widest text-accent/70">
-          <span className="blink">▌</span>
-          <span>new entry</span>
+        <div className="flex items-center justify-between gap-2 text-[0.7rem] uppercase tracking-widest text-accent/70">
+          <span className="flex items-center gap-2">
+            <span className="blink">▌</span>
+            <span>new entry</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setSecret((s) => !s)}
+            aria-pressed={secret}
+            className={`border px-2 py-0.5 tracking-widest ${
+              secret
+                ? "border-accent bg-accent text-black"
+                : "border-dim text-accent/60"
+            }`}
+          >
+            {secret ? "🔒 secret" : "🔓 open"}
+          </button>
         </div>
 
         <textarea
