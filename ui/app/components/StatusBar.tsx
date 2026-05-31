@@ -1,19 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, SignalHigh, BatteryFull } from "lucide-react";
+import { ChevronLeft, SignalHigh, BatteryFull, Power } from "lucide-react";
+import { logout } from "@/app/actions/auth";
 
-// Keitai status bar: optional top-left BACK button, signal (left), centered
-// screen label, battery + live clock (right). Blue blueprint family.
+// Status bar: left slot (BACK / signal / optional LOGOUT), centered screen
+// label, battery + live clock (right). Lives inside the glass chrome so the
+// left slot never overlaps anything (fixes floating-logout overlap on small
+// screens).
 export default function StatusBar({
   label = "ANALOG LOG",
   back,
+  showLogout = false,
 }: {
   label?: string;
   back?: string;
+  showLogout?: boolean;
 }) {
   const [now, setNow] = useState<Date | null>(null);
+  const [loggingOut, startLogout] = useTransition();
 
   useEffect(() => {
     const tick = () => setNow(new Date());
@@ -40,6 +46,17 @@ export default function StatusBar({
             <ChevronLeft size={14} strokeWidth={2.5} aria-hidden />
             back
           </Link>
+        ) : showLogout ? (
+          <button
+            type="button"
+            disabled={loggingOut}
+            onClick={() => startLogout(() => logout())}
+            aria-label="log out"
+            className="flex items-center gap-1 text-accent/80 active:text-accent disabled:opacity-40"
+          >
+            <Power size={13} strokeWidth={2.5} aria-hidden />
+            {loggingOut ? "…" : "logout"}
+          </button>
         ) : (
           <span className="flex items-center gap-1.5">
             <SignalHigh size={13} strokeWidth={2} aria-hidden />

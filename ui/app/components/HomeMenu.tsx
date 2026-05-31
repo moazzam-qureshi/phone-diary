@@ -59,7 +59,7 @@ export default function HomeMenu() {
   }
 
   return (
-    <Screen title="MENU">
+    <Screen title="MENU" showLogout>
       <div
         className="relative h-full overflow-hidden outline-none"
         tabIndex={0}
