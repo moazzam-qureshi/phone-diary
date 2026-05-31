@@ -6,3 +6,6 @@
 # OS / editor
 .DS_Store
 *.log
+
+# brainstorming visual-companion mockups
+.superpowers/
