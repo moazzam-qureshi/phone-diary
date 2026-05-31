@@ -10,11 +10,10 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Screen from "./Screen";
-import Blueprint from "./Blueprint";
 
-// Steins;Gate flip-phone menu: 2x2 grid of glossy orb icons over a blue
-// blueprint backdrop with a vertical "MENU" watermark. Tap an orb (or use
-// arrows + Enter) to open. No SELECT soft key — tapping selects.
+// Cosy forest menu: 2x2 grid of frosted-glass slots over the shared rainy-forest
+// backdrop, with a vertical "MENU" watermark. Tap a slot (or use arrows + Enter)
+// to open. No SELECT soft key — tapping selects.
 type MenuItem = { href: string; label: string; Icon: LucideIcon; hint: string };
 
 const ITEMS: MenuItem[] = [
@@ -66,14 +65,12 @@ export default function HomeMenu() {
         tabIndex={0}
         onKeyDown={onKeyDown}
       >
-        <Blueprint />
-
         {/* vertical MENU watermark */}
         <span
-          className="pointer-events-none absolute left-1 top-1/2 -translate-y-1/2 text-5xl font-bold tracking-widest text-accent/15"
-          style={{ writingMode: "vertical-rl" }}
+          className="pointer-events-none absolute left-1 top-1/2 -translate-y-1/2 text-6xl text-accent/15"
+          style={{ writingMode: "vertical-rl", fontFamily: "var(--font-caveat)" }}
         >
-          MENU
+          Menu
         </span>
 
         {/* 2x2 orb grid */}
@@ -88,17 +85,20 @@ export default function HomeMenu() {
                   onMouseEnter={() => setSel(i)}
                   onClick={() => enter(i)}
                   aria-current={active ? "true" : undefined}
-                  className="flex flex-col items-center gap-2"
+                  className={`glass flex flex-col items-center gap-2 px-5 py-5 transition-transform ${
+                    active ? "scale-105 border-accent" : ""
+                  }`}
                 >
-                  <span className={`orb ${active ? "orb-active" : ""} h-16 w-16`}>
-                    <span className="orb-glyph">
-                      <it.Icon size={26} strokeWidth={1.75} />
-                    </span>
-                  </span>
+                  <it.Icon
+                    size={26}
+                    strokeWidth={1.75}
+                    className="text-accent"
+                  />
                   <span
-                    className={`text-[0.7rem] font-bold uppercase tracking-widest ${
-                      active ? "text-accent" : "text-foreground/70"
+                    className={`text-[1.05rem] ${
+                      active ? "text-accent" : "text-foreground/85"
                     }`}
+                    style={{ fontFamily: "var(--font-caveat)" }}
                   >
                     {it.label}
                   </span>
@@ -109,7 +109,7 @@ export default function HomeMenu() {
         </div>
 
         {/* hint footer */}
-        <p className="absolute inset-x-0 bottom-2 text-center text-[0.6rem] uppercase tracking-widest text-foreground/40">
+        <p className="absolute inset-x-0 bottom-2 text-center text-sm text-foreground/50">
           {ITEMS[sel].hint}
         </p>
       </div>

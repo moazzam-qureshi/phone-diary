@@ -56,10 +56,7 @@ function LoginView({
 
   return (
     <form action={action} className="flex w-full flex-col gap-3">
-      <label
-        htmlFor="passcode"
-        className="text-[0.7rem] uppercase tracking-widest text-accent/70"
-      >
+      <label htmlFor="passcode" className="text-sm text-accent/70">
         passcode
       </label>
       <input
@@ -68,7 +65,7 @@ function LoginView({
         type="password"
         autoFocus
         autoComplete="current-password"
-        className="w-full border border-dim bg-panel px-3 py-3 font-mono text-base text-foreground outline-none placeholder:text-dim focus:border-accent"
+        className="glass w-full px-3 py-3 text-base text-foreground outline-none placeholder:text-foreground/40 focus:border-accent"
         placeholder="••••••••"
       />
       {state?.error && (
@@ -79,7 +76,7 @@ function LoginView({
       <button
         type="submit"
         disabled={pending}
-        className="min-h-[52px] w-full border border-accent bg-accent/15 text-sm font-bold uppercase tracking-[0.2em] text-accent transition-colors active:bg-accent active:text-black disabled:opacity-50"
+        className="min-h-[52px] w-full rounded-lg border border-accent bg-accent/15 text-base text-accent transition-colors active:bg-accent active:text-black disabled:opacity-50"
       >
         {pending ? "verifying…" : "▸ unlock"}
       </button>
@@ -120,7 +117,10 @@ function SetupView({
   if (!claiming) {
     return (
       <div className="flex w-full flex-col gap-3">
-        <p className="text-center text-[0.7rem] uppercase tracking-widest text-accent/70">
+        <p
+          className="text-center text-xl text-accent/80"
+          style={{ fontFamily: "var(--font-caveat)" }}
+        >
           first time — who are you?
         </p>
         {unclaimed.map((a) => (
@@ -128,7 +128,7 @@ function SetupView({
             key={a}
             type="button"
             onClick={() => onPick(a)}
-            className="min-h-[52px] w-full border border-accent bg-accent/10 text-sm uppercase tracking-widest text-accent active:bg-accent active:text-black"
+            className="glass min-h-[52px] w-full border-accent bg-accent/10 text-base text-accent active:bg-accent active:text-black"
           >
             I am {DISPLAY_NAMES[a]}
           </button>
@@ -150,7 +150,10 @@ function SetupView({
   return (
     <form action={action} className="flex w-full flex-col gap-3">
       <input type="hidden" name="author" value={claiming} />
-      <p className="text-center text-[0.7rem] uppercase tracking-widest text-accent/70">
+      <p
+        className="text-center text-xl text-accent/80"
+        style={{ fontFamily: "var(--font-caveat)" }}
+      >
         set a passcode for {DISPLAY_NAMES[claiming]}
       </p>
       <input
@@ -159,14 +162,14 @@ function SetupView({
         autoFocus
         autoComplete="new-password"
         placeholder="new passcode"
-        className="w-full border border-dim bg-panel px-3 py-3 font-mono text-base text-foreground outline-none placeholder:text-dim focus:border-accent"
+        className="glass w-full px-3 py-3 text-base text-foreground outline-none placeholder:text-foreground/40 focus:border-accent"
       />
       <input
         name="confirm"
         type="password"
         autoComplete="new-password"
         placeholder="confirm passcode"
-        className="w-full border border-dim bg-panel px-3 py-3 font-mono text-base text-foreground outline-none placeholder:text-dim focus:border-accent"
+        className="glass w-full px-3 py-3 text-base text-foreground outline-none placeholder:text-foreground/40 focus:border-accent"
       />
       {state?.error && (
         <p className="text-sm uppercase tracking-widest text-rose-300">
@@ -176,7 +179,7 @@ function SetupView({
       <button
         type="submit"
         disabled={pending}
-        className="min-h-[52px] w-full border border-accent bg-accent/15 text-sm font-bold uppercase tracking-[0.2em] text-accent transition-colors active:bg-accent active:text-black disabled:opacity-50"
+        className="min-h-[52px] w-full rounded-lg border border-accent bg-accent/15 text-base text-accent transition-colors active:bg-accent active:text-black disabled:opacity-50"
       >
         {pending ? "saving…" : "▸ set passcode"}
       </button>
