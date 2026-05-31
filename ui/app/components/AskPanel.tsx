@@ -122,7 +122,7 @@ export default function AskPanel() {
           autoFocus
           rows={3}
           placeholder="ask about your patterns…"
-          className="w-full resize-none border border-dim bg-panel p-3 text-sm text-foreground outline-none placeholder:text-dim focus:border-accent"
+          className="glass w-full resize-none p-3 text-sm text-foreground outline-none placeholder:text-foreground/40 focus:border-accent"
         />
 
         <div className="min-h-[1rem] text-[0.7rem] uppercase tracking-widest text-accent">
@@ -130,7 +130,7 @@ export default function AskPanel() {
         </div>
 
         {answer && (
-          <pre className="no-scrollbar flex-1 overflow-y-auto whitespace-pre-wrap border border-dim bg-panel p-3 text-sm leading-relaxed text-foreground">
+          <pre className="glass no-scrollbar flex-1 overflow-y-auto whitespace-pre-wrap p-3 text-sm leading-relaxed text-foreground">
             {answer}
             {streaming && <span className="blink"> ▌</span>}
           </pre>

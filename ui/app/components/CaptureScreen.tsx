@@ -71,7 +71,7 @@ export default function CaptureScreen() {
             if (flash) setFlash(null);
           }}
           placeholder="record reality…"
-          className="w-full min-h-0 flex-1 resize-none border border-dim bg-panel p-3 font-mono text-base leading-relaxed text-foreground outline-none placeholder:text-dim focus:border-accent"
+          className="glass w-full min-h-0 flex-1 resize-none p-3 text-base leading-relaxed text-foreground outline-none placeholder:text-foreground/40 focus:border-accent"
         />
 
         <div className="min-h-[1rem] text-center text-[0.7rem] uppercase tracking-widest text-accent">

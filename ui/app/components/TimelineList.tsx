@@ -105,7 +105,7 @@ export default function TimelineList({
         )}
 
         {showFilter && (
-          <div className="flex flex-col gap-2 border border-dim bg-panel p-2.5">
+          <div className="glass flex flex-col gap-2 p-2.5">
             <p className="text-[0.6rem] uppercase tracking-widest text-accent/60">
               who
             </p>
