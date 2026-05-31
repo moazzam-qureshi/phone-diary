@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ENTRY_TYPES, CATEGORIES } from "@/app/lib/types";
+import { ENTRY_TYPES, CATEGORIES, TYPE_LABEL } from "@/app/lib/types";
 import type { VisibleEntry } from "@/app/lib/visibility";
 import { AUTHORS, DISPLAY_NAMES, type Author } from "@/app/lib/identity-shared";
 
@@ -140,7 +140,12 @@ export default function TimelineList({
             <div className="grid grid-cols-3 gap-1.5">
               {row("ALL", !activeType, () => setParam("type", null), "all-t")}
               {ENTRY_TYPES.map((t) =>
-                row(t, activeType === t, () => setParam("type", t), `t-${t}`),
+                row(
+                  TYPE_LABEL[t],
+                  activeType === t,
+                  () => setParam("type", t),
+                  `t-${t}`,
+                ),
               )}
             </div>
             <p className="mt-1 text-[0.6rem] uppercase tracking-widest text-accent/60">

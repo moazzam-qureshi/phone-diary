@@ -12,6 +12,7 @@ import {
 import {
   ENTRY_TYPES,
   CATEGORIES,
+  TYPE_LABEL,
   type Category,
   type EntryType,
 } from "@/app/lib/types";
@@ -94,10 +95,10 @@ export default function EntryCard({
           <button
             type="button"
             onClick={() => setPicking((p) => !p)}
-            className={`border px-1.5 py-0.5 uppercase tracking-widest ${TYPE_COLOR[type]}`}
+            className={`border px-1.5 py-0.5 tracking-wide ${TYPE_COLOR[type]}`}
             title={entry.typeLocked ? "manually set" : "AI-classified — tap to change"}
           >
-            {type}
+            {TYPE_LABEL[type]}
             {!entry.typeLocked && entry.typeConfidence != null && (
               <span className="ml-1 opacity-50">{entry.typeConfidence}%</span>
             )}
@@ -130,13 +131,13 @@ export default function EntryCard({
                 type="button"
                 disabled={pending}
                 onClick={() => choose(t, entry.category as Category | null)}
-                className={`min-h-[36px] border px-2 text-[0.65rem] uppercase tracking-widest ${
+                className={`min-h-[36px] border px-2 text-[0.7rem] tracking-wide ${
                   type === t
                     ? "border-accent bg-accent font-bold text-black"
                     : "border-dim text-accent/75 active:bg-accent/20"
                 }`}
               >
-                {type === t ? `▸${t}` : t}
+                {type === t ? `▸ ${TYPE_LABEL[t]}` : TYPE_LABEL[t]}
               </button>
             ))}
           </div>
