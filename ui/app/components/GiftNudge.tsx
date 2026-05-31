@@ -23,7 +23,7 @@ export default function GiftNudge({ giftIds }: { giftIds: string[] }) {
 
   if (waiting < 1) return null;
   return (
-    <div className="border border-accent bg-accent/10 px-3 py-2 text-center text-[0.7rem] uppercase tracking-widest text-accent">
+    <div className="glass border-accent bg-accent/10 px-3 py-2 text-center text-sm text-accent">
       🎁 {waiting} gift{waiting > 1 ? "s" : ""} waiting — open in the timeline
     </div>
   );
