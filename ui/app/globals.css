@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
-/* Steins;Gate flip-phone menu — deep blue blueprint with glossy orbs. */
+/* Cosy rainy-forest theme — deep greens, mist, firefly-gold accent. */
 :root {
-  --background: #04102a; /* deep navy */
-  --background-2: #0a1f4a; /* lifted blue */
-  --foreground: #cfe6ff; /* pale blue-white text */
-  --accent: #4ea3ff; /* bright cyan-blue highlight */
-  --dim: #2a4a7a; /* muted blue for borders */
-  --panel: #081830; /* panel fill */
-  --line: #1b3a6b; /* blueprint line color */
+  --background: #1a2e22; /* deep forest */
+  --background-2: #243a2c; /* lifted forest */
+  --foreground: #eafae8; /* pale green-white */
+  --accent: #e0ad4e; /* firefly gold */
+  --dim: #5e7d62; /* mossy border */
+  --panel: rgba(20, 40, 28, 0.55); /* translucent forest panel */
+  --glass-border: rgba(150, 210, 160, 0.5);
 }
 
 @theme inline {
@@ -18,9 +18,9 @@
   --color-accent: var(--accent);
   --color-dim: var(--dim);
   --color-panel: var(--panel);
-  --color-line: var(--line);
-  --font-sans: var(--font-geist-mono);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-quicksand);
+  --font-mono: var(--font-quicksand);
+  --font-display: var(--font-caveat);
 }
 
 html,
@@ -31,14 +31,13 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-mono);
-  text-shadow: 0 0 3px rgba(78, 163, 255, 0.25);
+  font-family: var(--font-quicksand), system-ui, sans-serif;
   overflow: hidden;
 }
 
 ::selection {
   background: var(--accent);
-  color: #00132e;
+  color: #1a2e22;
 }
 
 /* hide OS scrollbar — keitai chrome owns scrolling */
@@ -50,108 +49,65 @@ body {
   display: none;
 }
 
-/* --- Glossy 3D orb icon (Steins;Gate menu style) --- */
-.orb {
-  position: relative;
-  border-radius: 9999px;
-  background: radial-gradient(
-    circle at 50% 32%,
-    #16335f 0%,
-    #0a1830 46%,
-    #050d1e 75%,
-    #02060f 100%
-  );
+/* Frosted-glass surface used by every panel/card */
+.glass {
+  background: var(--panel);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 16px;
   box-shadow:
-    inset 0 1px 2px rgba(120, 180, 255, 0.5),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.7),
-    0 4px 10px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(78, 163, 255, 0.35);
-}
-/* top glossy reflection */
-.orb::before {
-  content: "";
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  top: 8%;
-  height: 34%;
-  border-radius: 9999px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.55),
-    rgba(255, 255, 255, 0)
-  );
-  filter: blur(0.5px);
-  pointer-events: none;
-}
-.orb-active {
-  border-color: var(--accent);
-  box-shadow:
-    inset 0 1px 2px rgba(160, 210, 255, 0.7),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.6),
-    0 0 14px rgba(78, 163, 255, 0.7);
-}
-.orb-glyph {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #eaf4ff;
-  text-shadow: 0 0 6px rgba(120, 180, 255, 0.8);
+    0 4px 14px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
-/* --- Scanline + flicker overlay --- */
-.scanlines {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0px,
-    rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0.18) 3px,
-    rgba(0, 0, 0, 0.18) 4px
-  );
-  mix-blend-mode: multiply;
+/* --- Rain --- */
+@keyframes fall {
+  from {
+    transform: translateY(-12vh);
+  }
+  to {
+    transform: translateY(112vh);
+  }
 }
-.crt-vignette {
-  position: fixed;
-  inset: 0;
-  z-index: 49;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0, 0, 0, 0) 62%,
-    rgba(0, 0, 0, 0.45) 100%
-  );
+.rain-drop {
+  position: absolute;
+  top: 0;
+  width: 1.4px;
+  background: linear-gradient(transparent, rgba(210, 235, 220, 0.55));
+  animation: fall linear infinite;
 }
-.flicker {
-  position: fixed;
-  inset: 0;
-  z-index: 51;
-  pointer-events: none;
-  background: rgba(78, 163, 255, 0.012);
-  animation: flicker 5s infinite steps(60);
-}
-@keyframes flicker {
+
+/* --- Distant lightning — long cycle, brief double-flicker near the end --- */
+@keyframes lightning {
   0%,
+  92%,
   100% {
-    opacity: 0.98;
+    background: rgba(200, 225, 255, 0);
   }
-  30% {
-    opacity: 0.95;
+  92.6% {
+    background: rgba(210, 230, 255, 0.35);
   }
-  60% {
-    opacity: 0.99;
+  93% {
+    background: rgba(200, 225, 255, 0.04);
   }
-  80% {
-    opacity: 0.96;
+  93.5% {
+    background: rgba(215, 235, 255, 0.28);
+  }
+  94.3% {
+    background: rgba(200, 225, 255, 0);
   }
 }
+.lightning {
+  animation: lightning 45s infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .flicker {
+  .rain-drop {
+    animation: none;
+    opacity: 0.22;
+  }
+  .lightning {
     animation: none;
   }
 }
