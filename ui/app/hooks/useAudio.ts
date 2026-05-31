@@ -152,12 +152,41 @@ export function playGiftOpen() {
   }
 }
 
+// --- Looping rain ambience (file-based, gentle, tied to mute) ---
+let rainEl: HTMLAudioElement | null = null;
+
+function rainAudio(): HTMLAudioElement | null {
+  if (typeof window === "undefined") return null;
+  if (!rainEl) {
+    rainEl = new Audio("/rain.mp3");
+    rainEl.loop = true;
+    rainEl.volume = 0.4;
+  }
+  return rainEl;
+}
+
+// Start rain if unmuted. Must be called from a user gesture (autoplay policy).
+export function startRain() {
+  if (isMuted()) return;
+  const el = rainAudio();
+  if (!el) return;
+  void el.play().catch(() => {
+    /* autoplay blocked until a gesture — caller retries on next gesture */
+  });
+}
+
+function stopRain() {
+  if (rainEl) rainEl.pause();
+}
+
 // Simple pub/sub so MuteToggle instances stay in sync.
 const listeners = new Set<(muted: boolean) => void>();
 function setMuted(muted: boolean) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
   }
+  if (muted) stopRain();
+  else startRain();
   listeners.forEach((fn) => fn(muted));
 }
 

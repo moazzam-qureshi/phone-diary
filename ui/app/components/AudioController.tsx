@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { playKeystroke, playClick } from "@/app/hooks/useAudio";
+import { playKeystroke, playClick, startRain } from "@/app/hooks/useAudio";
 
 // Global audio controller, mounted once in the root layout. Two sounds, both
 // synthesized and both respecting the mute toggle:
@@ -65,6 +65,7 @@ export default function AudioController() {
     // Use pointerdown (fires before click, feels immediate). Capture phase so
     // we still hear it even if a handler stops propagation.
     function onPointerDown(e: PointerEvent) {
+      startRain(); // no-op if already playing or muted; satisfies autoplay gesture
       if (isControl(e.target)) playClick();
     }
 
