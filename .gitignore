@@ -1,11 +1,12 @@
-# Secrets — never commit. Only .env.example is tracked.
 .env
 .env.*
 !.env.example
-
-# OS / editor
+node_modules/
 .DS_Store
 *.log
 
 # brainstorming visual-companion mockups
 .superpowers/
+
+# claude code local
+.claude/
