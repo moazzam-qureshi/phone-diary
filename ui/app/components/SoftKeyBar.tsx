@@ -13,12 +13,12 @@ export type SoftKey = {
 };
 
 export default function SoftKeyBar({ action }: { action: SoftKey }) {
-  const cls = `min-h-[46px] inline-flex w-full max-w-xs items-center justify-center gap-1.5 border border-accent/60 bg-accent/10 px-4 text-sm font-bold uppercase tracking-[0.2em] text-accent transition-colors active:bg-accent active:text-[#00132e] ${
+  const cls = `min-h-[46px] inline-flex w-full max-w-xs items-center justify-center gap-1.5 rounded-lg border border-accent/60 bg-accent/15 px-4 text-base text-accent transition-colors active:bg-accent active:text-black ${
     action.disabled ? "pointer-events-none opacity-30" : ""
   }`;
   return (
     <div
-      className="flex shrink-0 items-center justify-center border-t border-dim/60 bg-panel px-3 py-2"
+      className="glass m-2 flex shrink-0 items-center justify-center rounded-xl px-3 py-2"
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
     >
       {action.href ? (

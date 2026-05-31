@@ -29,28 +29,33 @@ export default function StatusBar({
     : "--:--";
 
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-dim/60 bg-panel pr-3 text-[0.65rem] tracking-widest text-accent">
+    <div className="glass m-2 flex h-10 shrink-0 items-center justify-between rounded-xl px-3 text-sm text-accent">
       <div className="flex min-w-0 items-center gap-2">
         {back ? (
           <Link
             href={back}
             aria-label="back"
-            className="flex h-9 items-center gap-0.5 border-r border-dim/50 px-2.5 font-bold uppercase text-accent active:bg-accent active:text-[#00132e]"
+            className="flex items-center gap-1 text-accent/80 active:text-accent"
           >
             <ChevronLeft size={14} strokeWidth={2.5} aria-hidden />
             back
           </Link>
         ) : (
-          <span className="flex items-center gap-1.5 pl-3">
+          <span className="flex items-center gap-1.5">
             <SignalHigh size={13} strokeWidth={2} aria-hidden />
             <span className="opacity-70">3G</span>
           </span>
         )}
       </div>
 
-      <span className="truncate px-2 uppercase opacity-80">{label}</span>
+      <span
+        className="truncate px-2 text-lg text-foreground/85"
+        style={{ fontFamily: "var(--font-caveat)" }}
+      >
+        {label}
+      </span>
 
-      <div className="flex items-center gap-1.5 py-1.5">
+      <div className="flex items-center gap-1.5">
         <BatteryFull size={15} strokeWidth={2} aria-hidden />
         <span className="tabular-nums" suppressHydrationWarning>
           {time}

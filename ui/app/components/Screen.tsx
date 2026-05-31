@@ -20,7 +20,7 @@ export default function Screen({
   bodyClassName?: string;
 }) {
   return (
-    <div className="mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden border-x border-dim/40 bg-background">
+    <div className="mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden">
       <StatusBar label={title} back={back} />
       <main
         className={`no-scrollbar min-h-0 flex-1 overflow-y-auto ${bodyClassName}`}
