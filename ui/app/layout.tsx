@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Caveat, Quicksand } from "next/font/google";
 import "./globals.css";
-import ScanlineOverlay from "@/app/components/ScanlineOverlay";
+import ForestBackdrop from "@/app/components/ForestBackdrop";
 import AudioController from "@/app/components/AudioController";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const quicksand = Quicksand({
+  variable: "--font-quicksand",
   subsets: ["latin"],
+  weight: ["500", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin"],
+  weight: ["600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +27,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover" as const,
-  themeColor: "#04102a",
+  themeColor: "#1a2e22",
 };
 
 export default function RootLayout({
@@ -36,12 +38,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${quicksand.variable} ${caveat.variable} h-full antialiased`}
     >
-      <body className="font-mono">
+      <body className="font-sans">
+        <ForestBackdrop />
         {children}
         <AudioController />
-        <ScanlineOverlay />
       </body>
     </html>
   );
