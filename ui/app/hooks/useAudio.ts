@@ -152,6 +152,31 @@ export function playGiftOpen() {
   }
 }
 
+// Soft "pop" when a partner reaction floats in. A single gentle blip with a
+// quick pitch rise — distinct from the gift chime's two-note motif.
+export function playReactionPop() {
+  if (isMuted()) return;
+  const ac = ctx();
+  if (!ac) return;
+  try {
+    const now = ac.currentTime;
+    const osc = ac.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(660, now + 0.12);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.16, now + 0.02);
+    g.gain.linearRampToValueAtTime(0.0, now + 0.22);
+    osc.connect(g);
+    g.connect(ac.destination);
+    osc.start(now);
+    osc.stop(now + 0.26);
+  } catch {
+    // never let a failed pop break interaction
+  }
+}
+
 // --- Looping rain ambience (file-based, gentle, tied to mute) ---
 let rainEl: HTMLAudioElement | null = null;
 

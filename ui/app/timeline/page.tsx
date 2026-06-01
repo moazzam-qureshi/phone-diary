@@ -8,9 +8,13 @@ import {
   parseRangeFilter,
 } from "@/app/lib/entries";
 import { getViewer } from "@/app/lib/identity";
-import { reactionsForEntries } from "@/app/lib/reactions";
+import {
+  reactionsForEntries,
+  unseenReactionsForViewer,
+} from "@/app/lib/reactions";
 import type { Reaction } from "@/app/lib/db/schema";
 import TimelineList from "@/app/components/TimelineList";
+import ReactionToasts from "@/app/components/ReactionToasts";
 
 // Per-request: reads cookies (auth) + DB + URL searchParams. Never prerender.
 export const dynamic = "force-dynamic";
@@ -43,12 +47,17 @@ export default async function TimelinePage({
   const reactionsByEntry: Record<string, Reaction[]> = {};
   for (const [id, list] of reactionMap) reactionsByEntry[id] = list;
 
+  const toasts = await unseenReactionsForViewer(viewer);
+
   // TimelineList renders its own keitai Screen (status bar + soft keys).
   return (
-    <TimelineList
-      entries={entries}
-      viewer={viewer}
-      reactionsByEntry={reactionsByEntry}
-    />
+    <>
+      <ReactionToasts toasts={toasts} />
+      <TimelineList
+        entries={entries}
+        viewer={viewer}
+        reactionsByEntry={reactionsByEntry}
+      />
+    </>
   );
 }

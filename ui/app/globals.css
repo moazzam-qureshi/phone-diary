@@ -125,3 +125,23 @@ body {
 .blink {
   animation: blink 1s steps(1) infinite;
 }
+
+/* Reaction toast: gentle drop-in from the top */
+@keyframes reaction-in {
+  from {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.reaction-toast {
+  animation: reaction-in 0.35s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reaction-toast {
+    animation: none;
+  }
+}
