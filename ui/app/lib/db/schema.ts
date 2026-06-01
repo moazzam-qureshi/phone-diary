@@ -7,6 +7,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
@@ -101,3 +102,30 @@ export const entries = pgTable(
 
 export type Entry = typeof entries.$inferSelect;
 export type NewEntry = typeof entries.$inferInsert;
+
+// Partner reactions: one emoji (+ optional one-line note) per person per entry.
+// `author` = who reacted. `seenAt` null = the entry's owner hasn't been shown
+// the floating notification yet (server-side so it floats once across devices).
+export const reactions = pgTable(
+  "reactions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entryId: uuid("entry_id")
+      .notNull()
+      .references(() => entries.id, { onDelete: "cascade" }),
+    author: author("author").notNull(),
+    emoji: text("emoji").notNull(),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    seenAt: timestamp("seen_at", { withTimezone: true }),
+  },
+  (table) => [
+    // One reaction per person per entry (upsert target).
+    uniqueIndex("reactions_entry_author_idx").on(table.entryId, table.author),
+    index("reactions_entry_id_idx").on(table.entryId),
+  ],
+);
+
+export type Reaction = typeof reactions.$inferSelect;
