@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Entry } from "@/app/lib/db/schema";
+import type { Entry, Reaction } from "@/app/lib/db/schema";
 import { DISPLAY_NAMES, type Author } from "@/app/lib/identity-shared";
 import { playGiftOpen } from "@/app/hooks/useAudio";
 import EntryCard from "./EntryCard";
@@ -23,7 +23,15 @@ function markOpened(id: string) {
 }
 
 // A gifted secret from the partner. Renders wrapped until opened (per device).
-export default function GiftCard({ entry }: { entry: Entry }) {
+export default function GiftCard({
+  entry,
+  viewer,
+  reactions = [],
+}: {
+  entry: Entry;
+  viewer?: Author;
+  reactions?: Reaction[];
+}) {
   const fromName = DISPLAY_NAMES[entry.author as Author];
   // Assume opened on first paint to avoid a wrapped-then-revealed flash for
   // already-seen gifts; the effect corrects it for genuinely new ones.
@@ -60,7 +68,12 @@ export default function GiftCard({ entry }: { entry: Entry }) {
       <div className="mb-1 text-[0.6rem] uppercase tracking-widest text-accent/70">
         🎁 gift from {fromName}
       </div>
-      <EntryCard entry={entry} owner={false} />
+      <EntryCard
+        entry={entry}
+        owner={false}
+        viewer={viewer}
+        reactions={reactions}
+      />
     </div>
   );
 }

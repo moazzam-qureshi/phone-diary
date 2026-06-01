@@ -8,6 +8,8 @@ import {
   parseRangeFilter,
 } from "@/app/lib/entries";
 import { getViewer } from "@/app/lib/identity";
+import { reactionsForEntries } from "@/app/lib/reactions";
+import type { Reaction } from "@/app/lib/db/schema";
 import TimelineList from "@/app/components/TimelineList";
 
 // Per-request: reads cookies (auth) + DB + URL searchParams. Never prerender.
@@ -33,6 +35,20 @@ export default async function TimelinePage({
   const range = parseRangeFilter(sp.range);
   const entries = await listEntries(viewer, { type, category, author, range });
 
+  // Attach reactions for every full entry (locked stubs have no reactions).
+  const fullIds = entries
+    .filter((v) => v.kind === "full")
+    .map((v) => (v as { entry: { id: string } }).entry.id);
+  const reactionMap = await reactionsForEntries(fullIds);
+  const reactionsByEntry: Record<string, Reaction[]> = {};
+  for (const [id, list] of reactionMap) reactionsByEntry[id] = list;
+
   // TimelineList renders its own keitai Screen (status bar + soft keys).
-  return <TimelineList entries={entries} viewer={viewer} />;
+  return (
+    <TimelineList
+      entries={entries}
+      viewer={viewer}
+      reactionsByEntry={reactionsByEntry}
+    />
+  );
 }

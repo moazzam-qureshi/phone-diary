@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ENTRY_TYPES, CATEGORIES, TYPE_LABEL } from "@/app/lib/types";
 import type { VisibleEntry } from "@/app/lib/visibility";
+import type { Reaction } from "@/app/lib/db/schema";
 import { AUTHORS, DISPLAY_NAMES, type Author } from "@/app/lib/identity-shared";
 
 // Quick date ranges shown in the filter panel (value -> label).
@@ -24,9 +25,11 @@ import GiftNudge from "./GiftNudge";
 export default function TimelineList({
   entries,
   viewer,
+  reactionsByEntry = {},
 }: {
   entries: VisibleEntry[];
   viewer: Author;
+  reactionsByEntry?: Record<string, Reaction[]>;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -180,12 +183,19 @@ export default function TimelineList({
               v.kind === "locked" ? (
                 <LockedEntryCard key={v.stub.id} stub={v.stub} />
               ) : v.gift ? (
-                <GiftCard key={v.entry.id} entry={v.entry} />
+                <GiftCard
+                  key={v.entry.id}
+                  entry={v.entry}
+                  viewer={viewer}
+                  reactions={reactionsByEntry[v.entry.id] ?? []}
+                />
               ) : (
                 <EntryCard
                   key={v.entry.id}
                   entry={v.entry}
                   owner={v.entry.author === viewer}
+                  viewer={viewer}
+                  reactions={reactionsByEntry[v.entry.id] ?? []}
                 />
               ),
             )}

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { Entry } from "@/app/lib/db/schema";
+import type { Entry, Reaction } from "@/app/lib/db/schema";
 import {
   setEntryType,
   deleteEntry,
@@ -16,7 +16,9 @@ import {
   type Category,
   type EntryType,
 } from "@/app/lib/types";
+import { DISPLAY_NAMES, type Author } from "@/app/lib/identity-shared";
 import OutcomeEditor from "./OutcomeEditor";
+import ReactionBar from "./ReactionBar";
 
 // Distinct hue per Journey type (readable on the blue keitai screen).
 const TYPE_COLOR: Record<EntryType, string> = {
@@ -47,10 +49,18 @@ function latency(ms: number) {
 export default function EntryCard({
   entry,
   owner = false,
+  viewer,
+  reactions = [],
 }: {
   entry: Entry;
   owner?: boolean;
+  viewer?: Author;
+  reactions?: Reaction[];
 }) {
+  // The viewer's own reaction on this entry (for the react control state).
+  const myReaction = viewer
+    ? reactions.find((r) => r.author === viewer)
+    : undefined;
   const [editing, setEditing] = useState(false);
   const [picking, setPicking] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -272,6 +282,37 @@ export default function EntryCard({
             </button>
           )}
         </div>
+      )}
+
+      {/* Reactions — shown to both people; read-only on your own entries. */}
+      {reactions.length > 0 && (
+        <div className="mt-2.5 flex flex-col gap-1 border-t border-dim/40 pt-2">
+          {reactions.map((r) => (
+            <div key={r.id} className="flex items-baseline gap-1.5 text-sm">
+              <span className="text-base">{r.emoji}</span>
+              {r.note && (
+                <span
+                  className="text-foreground/85"
+                  style={{ fontFamily: "var(--font-quicksand)" }}
+                >
+                  “{r.note}”
+                </span>
+              )}
+              <span className="ml-auto text-[0.7rem] text-accent/50">
+                {DISPLAY_NAMES[r.author as Author]}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* React control — only on a partner's entry the viewer can see. */}
+      {!owner && viewer && (
+        <ReactionBar
+          entryId={entry.id}
+          mine={myReaction?.emoji ?? null}
+          myNote={myReaction?.note ?? null}
+        />
       )}
     </article>
   );
